@@ -20,7 +20,7 @@ type Props = {
   onAddToCart?: (article: Article, priceColumn: PriceListKey, price: number) => void;
 };
 
-export function ArticleLookup({ articles, activeColumn }: Props) {
+export function ArticleLookup({ articles, activeColumn, onAddToCart }: Props) {
   const [query, setQuery] = useState("");
 
   const results = useMemo(() => {
