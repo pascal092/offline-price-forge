@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ShoppingCart, Trash2, FileText } from "lucide-react";
-import type { CartItem } from "@/lib/pricing/cart";
+import type { CartItem } from "@/lib/pricing/types";
 import { cartTotal } from "@/lib/pricing/cart";
 import { formatEUR } from "@/lib/pricing/tiers";
 

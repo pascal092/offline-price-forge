@@ -22,8 +22,7 @@ import {
   getCatalogMeta,
   saveProject,
 } from "@/lib/db/idb";
-import type { Article, CatalogMeta, PriceListKey, Project } from "@/lib/pricing/types";
-import type { CartItem } from "@/lib/pricing/cart";
+import type { Article, CatalogMeta, CartItem, PriceListKey, Project } from "@/lib/pricing/types";
 import { generateOfferPDF } from "@/lib/pdf/offer";
 
 export const Route = createFileRoute("/")({
