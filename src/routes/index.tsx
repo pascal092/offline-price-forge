@@ -231,7 +231,20 @@ function HomePage() {
           </Button>
         </div>
 
-        <ArticleLookup articles={articles} activeColumn={hasInputs ? tier.column : null} />
+        <ArticleLookup
+          articles={articles}
+          activeColumn={hasInputs ? tier.column : null}
+          onAddToCart={handleAddToCart}
+        />
+
+        <CartCard
+          items={cart}
+          onChangeQuantity={handleChangeQty}
+          onRemove={handleRemove}
+          onClear={() => setCart([])}
+          onGeneratePDF={handleGeneratePDF}
+          canGenerate={hasInputs && !!input.kundenname.trim() && cart.length > 0}
+        />
 
         <HistoryTable projects={projects} onDelete={handleDelete} />
 
