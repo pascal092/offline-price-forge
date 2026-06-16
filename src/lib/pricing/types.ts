@@ -2,10 +2,10 @@ export const PRICE_LIST_COLUMNS = [
   "A - Liste",
   "B - Liste",
   "C - Liste",
-  "D - Liste bzw. Großdepot Mind. Preis",
-  "E - Liste bzw. Depot Mind. Preis",
-  "F - Liste (Handelspreisliste)",
-  "Standardpreisliste",
+  "D-Liste",
+  "E-Liste",
+  "F-Liste",
+  "E-Liste",
 ] as const;
 
 export type PriceListKey = (typeof PRICE_LIST_COLUMNS)[number];
