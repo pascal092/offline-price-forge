@@ -81,7 +81,7 @@ export function ProjectForm({ value, onChange }: Props) {
           </Select>
         </Field>
 
-        <Field label="Kunden-Klassifizierung">
+        <Field label="Projekt-Klassifizierung">
           <Select value={value.klassifizierung} onValueChange={(v) => set("klassifizierung", v)}>
             <SelectTrigger className="h-12 text-base">
               <SelectValue placeholder="Auswählen…" />

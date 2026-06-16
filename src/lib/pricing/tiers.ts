@@ -4,16 +4,16 @@ export function resolveTier(projektwert: number): TierResult {
   if (!Number.isFinite(projektwert) || projektwert < 0) {
     return {
       tier: "F",
-      column: "F - Liste (Handelspreisliste)",
+      column: "F-Liste",
       label: "Preisliste F",
     };
   }
   if (projektwert <= 5000)
-    return { tier: "F", column: "F - Liste (Handelspreisliste)", label: "Preisliste F" };
+    return { tier: "F", column: "F-Liste", label: "Preisliste F" };
   if (projektwert <= 10000)
-    return { tier: "E", column: "E - Liste bzw. Depot Mind. Preis", label: "Preisliste E" };
+    return { tier: "E", column: "E-Liste", label: "Preisliste E" };
   if (projektwert <= 25000)
-    return { tier: "D", column: "D - Liste bzw. Großdepot Mind. Preis", label: "Preisliste D" };
+    return { tier: "D", column: "D-Liste", label: "Preisliste D" };
   if (projektwert <= 50000)
     return { tier: "C", column: "C - Liste", label: "Preisliste C" };
   if (projektwert <= 100000)
