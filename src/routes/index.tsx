@@ -12,6 +12,7 @@ import { ProjectForm, type ProjectInput } from "@/components/pricing/ProjectForm
 import { ResultBadge } from "@/components/pricing/ResultBadge";
 import { ArticleLookup } from "@/components/pricing/ArticleLookup";
 import { HistoryTable } from "@/components/pricing/HistoryTable";
+import { CartCard } from "@/components/pricing/CartCard";
 import { registerPWA } from "@/lib/pwa/register";
 import { resolveTier } from "@/lib/pricing/tiers";
 import {
@@ -21,7 +22,9 @@ import {
   getCatalogMeta,
   saveProject,
 } from "@/lib/db/idb";
-import type { Article, CatalogMeta, Project } from "@/lib/pricing/types";
+import type { Article, CatalogMeta, PriceListKey, Project } from "@/lib/pricing/types";
+import type { CartItem } from "@/lib/pricing/cart";
+import { generateOfferPDF } from "@/lib/pdf/offer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
