@@ -109,12 +109,14 @@ function HomePage() {
       projektwert,
       tier: tier.tier,
       priceListColumn: tier.column,
+      cartItems: cart.slice(),
     };
     await saveProject(project);
     toast.success("Projekt gespeichert", {
       description: `${project.kundenname} → Preisliste ${project.tier}`,
     });
     setInput(EMPTY_INPUT);
+    setCart([]);
     await refresh();
   }
 
@@ -178,6 +180,28 @@ function HomePage() {
       aufbaupreis_eur_m2: preis,
       projektwert,
       tier,
+    });
+    toast.success("PDF wird heruntergeladen");
+  }
+
+  function handleGeneratePDFFromProject(project: Project) {
+    if (!project.cartItems || project.cartItems.length === 0) {
+      toast.error("Keine Artikel im gespeicherten Projekt vorhanden");
+      return;
+    }
+    generateOfferPDF(project.cartItems, {
+      kundenname: project.kundenname,
+      kundenkategorie: project.kundenkategorie,
+      kundenart: project.kundenart,
+      klassifizierung: project.klassifizierung,
+      dachgroesse_m2: project.dachgroesse_m2,
+      aufbaupreis_eur_m2: project.aufbaupreis_eur_m2,
+      projektwert: project.projektwert,
+      tier: {
+        tier: project.tier,
+        column: project.priceListColumn,
+        label: `Projektwert ${project.projektwert.toLocaleString("de-DE")} €`,
+      },
     });
     toast.success("PDF wird heruntergeladen");
   }
@@ -246,7 +270,11 @@ function HomePage() {
           canGenerate={hasInputs && !!input.kundenname.trim() && cart.length > 0}
         />
 
-        <HistoryTable projects={projects} onDelete={handleDelete} />
+        <HistoryTable
+          projects={projects}
+          onDelete={handleDelete}
+          onGeneratePDF={handleGeneratePDFFromProject}
+        />
 
         <footer className="pb-8 pt-4 text-center text-xs text-muted-foreground">
           Alle Daten verbleiben lokal auf diesem Gerät · Keine Server-Verbindung erforderlich

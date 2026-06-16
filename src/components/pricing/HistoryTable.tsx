@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { History, Download, Trash2, ArrowUpDown } from "lucide-react";
+import { History, Download, Trash2, ArrowUpDown, FileText } from "lucide-react";
 import { formatEUR } from "@/lib/pricing/tiers";
 import { projectsToCSV, downloadCSV } from "@/lib/csv";
 import type { Project } from "@/lib/pricing/types";
@@ -21,9 +21,10 @@ type SortKey = "createdAt" | "kundenname" | "projektwert" | "tier";
 type Props = {
   projects: Project[];
   onDelete: (id: string) => void;
+  onGeneratePDF: (project: Project) => void;
 };
 
-export function HistoryTable({ projects, onDelete }: Props) {
+export function HistoryTable({ projects, onDelete, onGeneratePDF }: Props) {
   const [filter, setFilter] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("createdAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -117,7 +118,7 @@ export function HistoryTable({ projects, onDelete }: Props) {
                   <TableHead>
                     <SortBtn label="Tier" active={sortKey === "tier"} dir={sortDir} onClick={() => toggleSort("tier")} />
                   </TableHead>
-                  <TableHead className="w-12" />
+                  <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -141,14 +142,30 @@ export function HistoryTable({ projects, onDelete }: Props) {
                       <Badge variant="secondary">Preisliste {p.tier}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete(p.id)}
-                        aria-label="Löschen"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onGeneratePDF(p)}
+                          disabled={!p.cartItems || p.cartItems.length === 0}
+                          title={
+                            !p.cartItems || p.cartItems.length === 0
+                              ? "Keine Artikel im gespeicherten Projekt"
+                              : "PDF-Angebot erzeugen"
+                          }
+                          aria-label="PDF erzeugen"
+                        >
+                          <FileText className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onDelete(p.id)}
+                          aria-label="Löschen"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
