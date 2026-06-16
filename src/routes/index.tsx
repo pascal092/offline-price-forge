@@ -124,6 +124,64 @@ function HomePage() {
     await refresh();
   }
 
+  function handleAddToCart(article: Article, priceColumn: PriceListKey, price: number) {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.artikel_nr === article.artikel_nr);
+      if (existing) {
+        return prev.map((i) =>
+          i.artikel_nr === article.artikel_nr
+            ? { ...i, quantity: i.quantity + 1, unitPrice: price, priceColumn }
+            : i,
+        );
+      }
+      return [
+        ...prev,
+        {
+          artikel_nr: article.artikel_nr,
+          bezeichnung_1: article.bezeichnung_1,
+          bezeichnung_2: article.bezeichnung_2,
+          me: article.me,
+          priceColumn,
+          unitPrice: price,
+          quantity: 1,
+        },
+      ];
+    });
+    toast.success("Zum Warenkorb hinzugefügt", { description: article.bezeichnung_1 });
+  }
+
+  function handleChangeQty(artikel_nr: string, qty: number) {
+    setCart((prev) =>
+      prev.map((i) => (i.artikel_nr === artikel_nr ? { ...i, quantity: qty } : i)),
+    );
+  }
+
+  function handleRemove(artikel_nr: string) {
+    setCart((prev) => prev.filter((i) => i.artikel_nr !== artikel_nr));
+  }
+
+  function handleGeneratePDF() {
+    if (!input.kundenname.trim() || !hasInputs) {
+      toast.error("Bitte Kundendaten und Projektwerte ausfüllen");
+      return;
+    }
+    if (cart.length === 0) {
+      toast.error("Warenkorb ist leer");
+      return;
+    }
+    generateOfferPDF(cart, {
+      kundenname: input.kundenname.trim(),
+      kundenkategorie: input.kundenkategorie || "—",
+      kundenart: input.kundenart || "—",
+      klassifizierung: input.klassifizierung || "—",
+      dachgroesse_m2: dach,
+      aufbaupreis_eur_m2: preis,
+      projektwert,
+      tier,
+    });
+    toast.success("PDF wird heruntergeladen");
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/40">
       <Toaster richColors position="top-right" />
