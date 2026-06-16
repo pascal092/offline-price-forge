@@ -31,6 +31,16 @@ export type Article = {
   prices: Record<PriceListKey, number | null>;
 };
 
+export type CartItem = {
+  artikel_nr: string;
+  bezeichnung_1: string;
+  bezeichnung_2: string;
+  me: string;
+  priceColumn: PriceListKey;
+  unitPrice: number;
+  quantity: number;
+};
+
 export type TierLetter = "A" | "B" | "C" | "D" | "E" | "F";
 
 export type TierResult = {
@@ -51,6 +61,7 @@ export type Project = {
   projektwert: number;
   tier: TierLetter;
   priceListColumn: PriceListKey;
+  cartItems?: CartItem[];
 };
 
 export type CatalogMeta = {
