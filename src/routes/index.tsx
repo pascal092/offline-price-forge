@@ -12,6 +12,7 @@ import { ProjectForm, type ProjectInput } from "@/components/pricing/ProjectForm
 import { ResultBadge } from "@/components/pricing/ResultBadge";
 import { ArticleLookup } from "@/components/pricing/ArticleLookup";
 import { HistoryTable } from "@/components/pricing/HistoryTable";
+import { CartCard } from "@/components/pricing/CartCard";
 import { registerPWA } from "@/lib/pwa/register";
 import { resolveTier } from "@/lib/pricing/tiers";
 import {
@@ -21,7 +22,9 @@ import {
   getCatalogMeta,
   saveProject,
 } from "@/lib/db/idb";
-import type { Article, CatalogMeta, Project } from "@/lib/pricing/types";
+import type { Article, CatalogMeta, PriceListKey, Project } from "@/lib/pricing/types";
+import type { CartItem } from "@/lib/pricing/cart";
+import { generateOfferPDF } from "@/lib/pdf/offer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,6 +55,7 @@ function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [input, setInput] = useState<ProjectInput>(EMPTY_INPUT);
   const [online, setOnline] = useState(true);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     registerPWA();
@@ -120,6 +124,64 @@ function HomePage() {
     await refresh();
   }
 
+  function handleAddToCart(article: Article, priceColumn: PriceListKey, price: number) {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.artikel_nr === article.artikel_nr);
+      if (existing) {
+        return prev.map((i) =>
+          i.artikel_nr === article.artikel_nr
+            ? { ...i, quantity: i.quantity + 1, unitPrice: price, priceColumn }
+            : i,
+        );
+      }
+      return [
+        ...prev,
+        {
+          artikel_nr: article.artikel_nr,
+          bezeichnung_1: article.bezeichnung_1,
+          bezeichnung_2: article.bezeichnung_2,
+          me: article.me,
+          priceColumn,
+          unitPrice: price,
+          quantity: 1,
+        },
+      ];
+    });
+    toast.success("Zum Warenkorb hinzugefügt", { description: article.bezeichnung_1 });
+  }
+
+  function handleChangeQty(artikel_nr: string, qty: number) {
+    setCart((prev) =>
+      prev.map((i) => (i.artikel_nr === artikel_nr ? { ...i, quantity: qty } : i)),
+    );
+  }
+
+  function handleRemove(artikel_nr: string) {
+    setCart((prev) => prev.filter((i) => i.artikel_nr !== artikel_nr));
+  }
+
+  function handleGeneratePDF() {
+    if (!input.kundenname.trim() || !hasInputs) {
+      toast.error("Bitte Kundendaten und Projektwerte ausfüllen");
+      return;
+    }
+    if (cart.length === 0) {
+      toast.error("Warenkorb ist leer");
+      return;
+    }
+    generateOfferPDF(cart, {
+      kundenname: input.kundenname.trim(),
+      kundenkategorie: input.kundenkategorie || "—",
+      kundenart: input.kundenart || "—",
+      klassifizierung: input.klassifizierung || "—",
+      dachgroesse_m2: dach,
+      aufbaupreis_eur_m2: preis,
+      projektwert,
+      tier,
+    });
+    toast.success("PDF wird heruntergeladen");
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/40">
       <Toaster richColors position="top-right" />
@@ -169,7 +231,20 @@ function HomePage() {
           </Button>
         </div>
 
-        <ArticleLookup articles={articles} activeColumn={hasInputs ? tier.column : null} />
+        <ArticleLookup
+          articles={articles}
+          activeColumn={hasInputs ? tier.column : null}
+          onAddToCart={handleAddToCart}
+        />
+
+        <CartCard
+          items={cart}
+          onChangeQuantity={handleChangeQty}
+          onRemove={handleRemove}
+          onClear={() => setCart([])}
+          onGeneratePDF={handleGeneratePDF}
+          canGenerate={hasInputs && !!input.kundenname.trim() && cart.length > 0}
+        />
 
         <HistoryTable projects={projects} onDelete={handleDelete} />
 

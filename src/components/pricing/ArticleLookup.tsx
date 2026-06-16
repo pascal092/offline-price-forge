@@ -9,16 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import { Search, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { formatEUR } from "@/lib/pricing/tiers";
 import type { Article, PriceListKey } from "@/lib/pricing/types";
 
 type Props = {
   articles: Article[];
   activeColumn: PriceListKey | null;
+  onAddToCart?: (article: Article, priceColumn: PriceListKey, price: number) => void;
 };
 
-export function ArticleLookup({ articles, activeColumn }: Props) {
+export function ArticleLookup({ articles, activeColumn, onAddToCart }: Props) {
   const [query, setQuery] = useState("");
 
   const results = useMemo(() => {
@@ -76,12 +78,13 @@ export function ArticleLookup({ articles, activeColumn }: Props) {
                   <TableHead className="w-32 text-right">
                     {activeColumn ? "Preis" : "Standardpreis"}
                   </TableHead>
+                  {onAddToCart && <TableHead className="w-12" />}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {results.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    <TableCell colSpan={onAddToCart ? 6 : 5} className="text-center text-muted-foreground">
                       Keine Treffer.
                     </TableCell>
                   </TableRow>
@@ -101,6 +104,19 @@ export function ArticleLookup({ articles, activeColumn }: Props) {
                         <TableCell className="text-sm">{a.vpe || "—"}</TableCell>
                         <TableCell className="text-sm">{a.me || "—"}</TableCell>
                         <TableCell className="text-right font-mono">{formatEUR(price)}</TableCell>
+                        {onAddToCart && (
+                          <TableCell>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              disabled={price == null}
+                              onClick={() => price != null && onAddToCart(a, col, price)}
+                              aria-label="In Warenkorb"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        )}
                       </TableRow>
                     );
                   })
