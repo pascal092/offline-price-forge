@@ -9,13 +9,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import { Search, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { formatEUR } from "@/lib/pricing/tiers";
 import type { Article, PriceListKey } from "@/lib/pricing/types";
 
 type Props = {
   articles: Article[];
   activeColumn: PriceListKey | null;
+  onAddToCart?: (article: Article, priceColumn: PriceListKey, price: number) => void;
 };
 
 export function ArticleLookup({ articles, activeColumn }: Props) {
