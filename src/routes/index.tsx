@@ -55,6 +55,7 @@ function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [input, setInput] = useState<ProjectInput>(EMPTY_INPUT);
   const [online, setOnline] = useState(true);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     registerPWA();
