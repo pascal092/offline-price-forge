@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import { autoTable } from "jspdf-autotable";
 import type { CartItem, TierResult } from "@/lib/pricing/types";
 import { formatEUR } from "@/lib/pricing/tiers";
 
