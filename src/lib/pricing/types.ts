@@ -1,11 +1,10 @@
 export const PRICE_LIST_COLUMNS = [
-  "A - Liste",
-  "B - Liste",
-  "C - Liste",
-  "D-Liste",
-  "E-Liste",
-  "F-Liste",
-  "E-Liste",
+  "Preisliste A",
+  "Preisliste B",
+  "Preisliste C",
+  "Preisliste D",
+  "Preisliste E",
+  "Preisliste F",
 ] as const;
 
 export type PriceListKey = (typeof PRICE_LIST_COLUMNS)[number];

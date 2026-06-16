@@ -87,7 +87,7 @@ export function ArticleLookup({ articles, activeColumn }: Props) {
                   </TableRow>
                 ) : (
                   results.map((a) => {
-                    const col = activeColumn ?? "F-Liste";
+                    const col = activeColumn ?? "Preisliste F";
                     const price = a.prices[col];
                     return (
                       <TableRow key={a.artikel_nr}>
