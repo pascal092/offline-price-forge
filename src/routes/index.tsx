@@ -20,8 +20,10 @@ import {
   getAllArticles,
   getAllProjects,
   getCatalogMeta,
+  replaceCatalog,
   saveProject,
 } from "@/lib/db/idb";
+import { getCatalogFromSupabase } from "@/lib/api/catalog.functions";
 import type { Article, CatalogMeta, CartItem, PriceListKey, Project } from "@/lib/pricing/types";
 import { generateOfferPDF } from "@/lib/pdf/offer";
 
@@ -77,7 +79,32 @@ function HomePage() {
   }
 
   useEffect(() => {
-    void refresh();
+    void (async () => {
+      await refresh();
+      // Beim ersten Start ohne lokalen Katalog automatisch die zentrale
+      // Preisliste aus Supabase laden (nur wenn online).
+      try {
+        const existing = await getAllArticles();
+        const isOnline = typeof navigator === "undefined" ? true : navigator.onLine;
+        if (existing.length === 0 && isOnline) {
+          const result = await getCatalogFromSupabase();
+          if (result.rows > 0) {
+            await replaceCatalog(result.articles, {
+              filename: "Supabase (zentrale Preisliste)",
+              importedAt: Date.now(),
+              rows: result.rows,
+            });
+            await refresh();
+            toast.success("Preisliste aus Supabase geladen", {
+              description: `${result.rows.toLocaleString("de-DE")} Artikel wurden geladen.`,
+            });
+          }
+        }
+      } catch {
+        // Offline oder Supabase nicht erreichbar: still bleiben,
+        // vorhandener lokaler Katalog wird weiter genutzt.
+      }
+    })();
   }, []);
 
   const dach = parseFloat(input.dachgroesse_m2.replace(",", "."));
