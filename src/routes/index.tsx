@@ -13,6 +13,8 @@ import { ResultBadge } from "@/components/pricing/ResultBadge";
 import { ArticleLookup } from "@/components/pricing/ArticleLookup";
 import { HistoryTable } from "@/components/pricing/HistoryTable";
 import { CartCard } from "@/components/pricing/CartCard";
+import { AuthGate } from "@/components/auth/AuthGate";
+import { UserMenu } from "@/components/auth/UserMenu";
 import { registerPWA } from "@/lib/pwa/register";
 import { resolveTier } from "@/lib/pricing/tiers";
 import {
@@ -38,8 +40,16 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: HomePage,
+  component: HomePageWithAuth,
 });
+
+function HomePageWithAuth() {
+  return (
+    <AuthGate>
+      <HomePage />
+    </AuthGate>
+  );
+}
 
 const EMPTY_INPUT: ProjectInput = {
   kundenname: "",
@@ -251,12 +261,15 @@ function HomePage() {
               </p>
             </div>
           </div>
-          {!online && (
-            <div className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-              <WifiOff className="h-3.5 w-3.5" />
-              Offline-Modus
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {!online && (
+              <div className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
+                <WifiOff className="h-3.5 w-3.5" />
+                Offline-Modus
+              </div>
+            )}
+            <UserMenu />
+          </div>
         </div>
       </header>
 
