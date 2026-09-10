@@ -82,6 +82,11 @@ $$;
 -- Admin-Seed (idempotent). Passwort kann anschließend im Admin-Panel geändert
 -- werden. Hier absichtlich als SQL, damit ein frischer Deploy sofort einen
 -- Admin-Zugang hat.
+-- HINWEIS: Kein Passwort im Code. Das Admin-Startpasswort wird beim Deploy
+-- ueber den DB-Parameter app.seed_admin_password gesetzt, z.B.:
+--   ALTER DATABASE postgres SET app.seed_admin_password = '<startpasswort>';
+-- Ohne gesetzten Parameter wird 'CHANGE_ME_ON_FIRST_DEPLOY' verwendet und
+-- MUSS im Admin-Panel sofort geaendert werden.
 insert into public.app_users (email, password_hash, role, can_view_margin, is_active)
 values (
   'pascal.wanner@zinco.de',
