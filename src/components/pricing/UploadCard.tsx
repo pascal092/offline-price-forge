@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, FileSpreadsheet, CheckCircle2 } from "lucide-react";
+import { Upload, FileSpreadsheet, CheckCircle2, Database, RefreshCw } from "lucide-react";
 import { parseExcelFile } from "@/lib/excel/parse";
 import { replaceCatalog } from "@/lib/db/idb";
+import { getCatalogFromSupabase } from "@/lib/api/catalog.functions";
 import { toast } from "sonner";
 import type { CatalogMeta } from "@/lib/pricing/types";
 
@@ -15,7 +16,30 @@ type Props = {
 export function UploadCard({ meta, onImported }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+
+  async function handleSupabaseSync() {
+    setSyncing(true);
+    try {
+      const result = await getCatalogFromSupabase();
+      await replaceCatalog(result.articles, {
+        filename: "Supabase (zentrale Preisliste)",
+        importedAt: Date.now(),
+        rows: result.rows,
+      });
+      toast.success("Preisliste aus Supabase geladen", {
+        description: `${result.rows.toLocaleString("de-DE")} Artikel wurden aktualisiert.`,
+      });
+      onImported();
+    } catch (err) {
+      toast.error("Laden aus Supabase fehlgeschlagen", {
+        description: err instanceof Error ? err.message : String(err),
+      });
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   async function handleFile(file: File) {
     setBusy(true);
@@ -51,10 +75,39 @@ export function UploadCard({ meta, onImported }: Props) {
           Stammdaten-Preisliste (Excel)
         </CardTitle>
         <CardDescription>
-          Lädt die Datei lokal in den Browser. Es werden keine Daten an einen Server gesendet.
+          Lädt die zentrale Preisliste aus Supabase oder alternativ eine Excel-Datei lokal in den
+          Browser. Der Katalog wird für die Offline-Nutzung im Gerät gespeichert.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="flex flex-col gap-3 rounded-xl border bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-2">
+            <Database className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
+            <div>
+              <p className="font-medium">Zentrale Preisliste (Supabase)</p>
+              <p className="text-sm text-muted-foreground">
+                Empfohlen: Lädt die aktuelle Preisliste aus der zentralen Datenbank.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="lg"
+            onClick={() => void handleSupabaseSync()}
+            disabled={syncing}
+            className="min-h-11"
+            data-testid="button-supabase-sync"
+          >
+            <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Wird geladen…" : "Aus Supabase laden"}
+          </Button>
+        </div>
+
+        <div className="relative py-1 text-center">
+          <span className="bg-card px-3 text-xs uppercase tracking-wide text-muted-foreground">
+            oder Excel manuell importieren
+          </span>
+        </div>
+
         <div
           onDragOver={(e) => {
             e.preventDefault();
